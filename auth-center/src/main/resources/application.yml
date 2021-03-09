@@ -1,0 +1,26 @@
+server:
+  port: 30000
+spring:
+  application:
+    name: auth-center
+  datasource:
+    url: jdbc:mysql://localhost:3306/security?useSSL=false&userUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+
+logging:
+  level:
+    com.kdyzm: debug
+    web: debug
+    sql: debug
+    root: warn
