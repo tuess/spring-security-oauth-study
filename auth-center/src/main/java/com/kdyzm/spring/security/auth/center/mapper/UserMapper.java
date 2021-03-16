@@ -3,6 +3,7 @@ package com.kdyzm.spring.security.auth.center.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kdyzm.spring.security.auth.center.entity.TUser;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -11,6 +12,7 @@ import java.util.List;
 /**
  * @author kdyzm
  */
+@Mapper
 public interface UserMapper extends BaseMapper<TUser> {
 
     @Select("SELECT DISTINCT tp.`url` FROM `t_user_role` tur \n" +
