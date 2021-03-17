@@ -1,11 +1,12 @@
 package com.kdyzm.spring.security.auth.center.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.kdyzm.spring.security.auth.center.entity.ExpandUser;
 import com.kdyzm.spring.security.auth.center.entity.TUser;
 import com.kdyzm.spring.security.auth.center.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,9 +42,14 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
             array = new String[allPermissions.size()];
             allPermissions.toArray(array);
         }
-        return User
-                .withUsername(tUser.getUsername())
-                .password(tUser.getPassword())
-                .authorities(array).build();
+        // return User
+        //         .withUsername(tUser.getUsername())
+        //         .password(tUser.getPassword())
+        //         .authorities(array).build();
+        //添加自定义信息到token中
+        ExpandUser expandUser = new ExpandUser(tUser.getUsername(), tUser.getPassword(), AuthorityUtils.createAuthorityList(array));
+        expandUser.setId(tUser.getId());
+        expandUser.setBranch("工程部");
+        return expandUser;
     }
 }

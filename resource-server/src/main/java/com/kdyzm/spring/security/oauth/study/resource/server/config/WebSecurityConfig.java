@@ -43,8 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .anyRequest()
-                .access("@rbacPermission.hasPermission(request, authentication)")
-                .and().exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler());
+                .authenticated();
         // 添加自定义的过滤器
         // .and().addFilterAfter(new PermissionFilter(), FilterSecurityInterceptor.class);
         //自定义的一套url权限拦截器增加到默认拦截链中

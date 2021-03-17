@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import javax.sql.DataSource;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * @author kdyzm
@@ -49,6 +49,9 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     @Qualifier("dataSource")
     private DataSource dataSource;
 
+    @Autowired
+    private CustomTokenEnhancer customTokenEnhancer;
+
     /**
      * 配置管理token
      */
@@ -63,7 +66,10 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
 
         // 此处配置使用jwt
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(Collections.singletonList(jwtAccessTokenConverter));
+        // 使用普通jwt
+        // tokenEnhancerChain.setTokenEnhancers(Collections.singletonList(jwtAccessTokenConverter));
+        // 添加自定义增强jwt
+        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
         services.setTokenEnhancer(tokenEnhancerChain);
 
         return services;
