@@ -2,6 +2,7 @@ package com.kdyzm.spring.security.auth.center.db;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.tree.TreeNode;
+import com.alibaba.fastjson.JSONObject;
 import com.kdyzm.spring.security.auth.center.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -10,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author kdyzm
@@ -43,6 +43,26 @@ public class DBTest {
         nodeList.add(new TreeNode<>("221", "2", "商品管理2", 2));
 
         System.out.println(Arrays.toString(nodeList.toArray()));
+
+        List<?> objects = putParent(nodeList, "0");
+        System.out.println(JSONObject.toJSONString(objects));
+
+
+    }
+
+    public List<?> putParent(List<TreeNode<String>> nodeList, String pid) {
+        List<Object> list = new ArrayList<>();
+        for (TreeNode<String> stringTreeNode : nodeList) {
+            Map<String, Object> mapParent = new LinkedHashMap<>();
+            if (null != pid && stringTreeNode.getParentId().equals(pid)) {
+                mapParent.put("id", stringTreeNode.getId());
+                mapParent.put("name", stringTreeNode.getName());
+                mapParent.put("pid", stringTreeNode.getParentId());
+                mapParent.put("childList", putParent(nodeList, stringTreeNode.getId()));
+                list.add(mapParent);
+            }
+        }
+        return list;
     }
 
 
