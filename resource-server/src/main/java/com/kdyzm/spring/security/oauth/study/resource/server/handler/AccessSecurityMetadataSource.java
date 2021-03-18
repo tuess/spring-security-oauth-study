@@ -30,7 +30,8 @@ public class AccessSecurityMetadataSource implements FilterInvocationSecurityMet
         Principal principal = ((FilterInvocation) o).getHttpRequest().getUserPrincipal();
         Authentication authentication = (Authentication) principal;
 
-        return SecurityConfig.createList(String.valueOf(authentication.getAuthorities()));
+        // 防止有一些不登录即可访问的资源在此NPE
+        return authentication == null ? null : SecurityConfig.createList(String.valueOf(authentication.getAuthorities()));
     }
 
     /**

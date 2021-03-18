@@ -1,6 +1,6 @@
 package com.kdyzm.spring.security.oauth.study.resource.server.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 /**
  * @author kdyzm
@@ -21,8 +23,24 @@ public class ResouceServerConfig extends ResourceServerConfigurerAdapter {
     // @Autowired
     // private ResourceServerTokenServices resourceServerTokenServices;
 
-    @Autowired
-    private TokenStore tokenStore;
+    // @Autowired
+    // private TokenStore tokenStore;
+
+
+    // 对称秘钥，资源服务器使用秘钥来验证
+    private static final String SIGNING_KEY = "auth";
+
+    @Bean
+    public TokenStore tokenStore() {
+        return new JwtTokenStore(accessTokenConverter());
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+        jwtAccessTokenConverter.setSigningKey(SIGNING_KEY);
+        return jwtAccessTokenConverter;
+    }
 
     // @Bean
     // public ResourceServerTokenServices resourceServerTokenServices(){
@@ -39,7 +57,7 @@ public class ResouceServerConfig extends ResourceServerConfigurerAdapter {
                 .resourceId(RESOURCE_ID)
                 // 采用jwt，注释掉此行和上面的resourceServerTokenServices，不再采用请求/oauth/check_token接口的方式，采用jwt方式传递token等信息，在TokenConfig类中配置的tokenStore
                 // .tokenServices(resourceServerTokenServices)//令牌服务
-                .tokenStore(tokenStore)
+                .tokenStore(tokenStore())
                 .stateless(true);
     }
 

@@ -2,7 +2,6 @@ package com.kdyzm.spring.security.oauth.study.resource.server.handler;
 
 import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kdyzm.spring.security.oauth.study.resource.server.entity.JwtTokenInfo;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +36,13 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> collection) throws AccessDeniedException, InsufficientAuthenticationException {
         AntPathMatcher antPathMatcher = new AntPathMatcher();
-        ObjectMapper objectMapper = new ObjectMapper();
 
-        log.info("[用户允许请求的地址]: {}", authentication.getAuthorities());
         HttpServletRequest request = ((FilterInvocation) o).getHttpRequest();
+        log.info("[用户允许请求的地址]: {}", authentication.getAuthorities());
 
         String resourceRole = request.getRequestURI();
+        log.info("[资源地址]: {}", resourceRole);
+
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
 
 
@@ -53,24 +53,23 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
 
         String[] base64Token = details.getTokenValue().split("\\.");
         String token = Base64.decodeStr(base64Token[1]);
-
         JwtTokenInfo jwtTokenInfo = JSONObject.parseObject(token, JwtTokenInfo.class);
+
+        log.info("用户部门：{}", jwtTokenInfo.getUser_info().getBranch());
 
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(jwtTokenInfo, null, authentication.getAuthorities());
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        //将authenticationToken填充到安全上下文
+        //将authenticationToken填充到安全上下文便于以后使用
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 
-        log.info("[资源地址]: {}", resourceRole);
-
+        // 对比权限
         for (GrantedAuthority userAuth : authentication.getAuthorities()) {
             if (antPathMatcher.match(userAuth.getAuthority().trim(), resourceRole.trim())) {
                 return;
             }
         }
-
 
         throw new AccessDeniedException("权限不足");
 

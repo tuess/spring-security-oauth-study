@@ -35,7 +35,10 @@ public class OrderController {
     @GetMapping("/r3")
     // @PreAuthorize("hasAnyAuthority('/r3')")
     public String r3() {
-        return "a";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtTokenInfo jwtTokenInfo = (JwtTokenInfo) authentication.getPrincipal();
+        return "访问资源r3" + jwtTokenInfo.getUser_info().getBranch();
+        // return "访问资源r3";
     }
 
 }
