@@ -1,5 +1,6 @@
 package com.kdyzm.spring.security.auth.center.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Autowired
+    private LogOutHandler logOutHandler;
+
+
     //配置密码编码器，默认为BCrypt加密
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -44,8 +49,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginPage("/login.html")
-                .loginProcessingUrl("/login");
-        // 自定义的登陆失败页面
+                .loginProcessingUrl("/login")
+                .and().logout().logoutUrl("/logout").logoutSuccessHandler(logOutHandler);
+        // 自定义的登录失败页面
         // .failureHandler(myAuthenticationFailureHandler);
 
     }
