@@ -31,6 +31,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private LogOutHandler logOutHandler;
 
+    @Autowired
+    private LogInSuccessHandler logInSuccessHandler;
 
     //配置密码编码器，默认为BCrypt加密
     @Bean
@@ -46,10 +48,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/login*", "/css/*", "/test").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login.html")
-                .loginProcessingUrl("/login")
+                // .and()
+                // .oauth2Login()
+                // .formLogin()
+                // .loginPage("/login.html")
+                // .loginProcessingUrl("/login")
+                // .successHandler(logInSuccessHandler)
                 .and().logout().logoutUrl("/logout").logoutSuccessHandler(logOutHandler);
         // 自定义的登录失败页面
         // .failureHandler(myAuthenticationFailureHandler);
