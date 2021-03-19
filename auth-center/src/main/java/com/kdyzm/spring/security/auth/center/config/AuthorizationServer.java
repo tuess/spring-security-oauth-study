@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -61,6 +62,7 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
         services.setClientDetailsService(clientDetailsService);
         services.setSupportRefreshToken(true);
         services.setTokenStore(tokenStore);
+        // token和refreshToken失效时间，如果客户端信息存放在数据库，那么token失效时间就要去数据库配置
         services.setAccessTokenValiditySeconds(7200);
         services.setRefreshTokenValiditySeconds(259200);
 
@@ -90,23 +92,24 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
      * 配置客户端详细信息
      * ClientDetailsService只有存在内存中和存到数据库中两种方式
      * 存放到数据库中就需要自行去数据库添加好数据，不像inMemory这么方便，可以直接配置
+     * 如果存放到数据库，那么token失效时间就要去数据库配置
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.jdbc(dataSource); //配置为存放到数据库
-        // clients.inMemory()
-        //         .withClient("c1")
-        //         .secret(new BCryptPasswordEncoder().encode("secret"))//$2a$10$0uhIO.ADUFv7OQ/kuwsC1.o3JYvnevt5y3qX/ji0AUXs4KYGio3q6
-        //         .resourceIds("r1")
-        //         .authorizedGrantTypes("authorization_code", "password", "client_credentials", "implicit", "refresh_token")
-        //         .scopes("all")
-        //         .autoApprove(false)
-        //         .redirectUris("https://www.baidu.com");
+        // clients.jdbc(dataSource); //配置为存放到数据库
+        clients.inMemory()
+                .withClient("c1")
+                .secret(new BCryptPasswordEncoder().encode("secret"))//$2a$10$0uhIO.ADUFv7OQ/kuwsC1.o3JYvnevt5y3qX/ji0AUXs4KYGio3q6
+                .resourceIds("r1")
+                .authorizedGrantTypes("authorization_code", "password", "client_credentials", "implicit", "refresh_token")
+                .scopes("all")
+                .autoApprove(false)
+                .redirectUris("https://www.baidu.com");
     }
 
 
     /**
-     * 配置令牌访问端点服务
+     * 配置令牌和令牌访问端点服务
      * 此处也可以通过tokenStore()设置为存放在数据库或者redis或者使用jwt
      * 如果配置了accessTokenConverter为JwtAccessTokenConverter，那么就使用jwt，否则默认使用InMemory
      * 这里的tokenServices()已经在上面配置了tokenStore()，tokenStore()中配置了JwtAccessTokenConverter
@@ -123,6 +126,9 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
         endpoints.pathMapping("/oauth/confirm_access", "/custom/confirm_access");
     }
 
+    /**
+     * 用来配置令牌端点的安全约束
+     */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
         security

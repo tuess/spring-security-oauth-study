@@ -3,9 +3,11 @@ package com.kdyzm.spring.security.oauth.study.resource.server.handler;
 import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson.JSONObject;
 import com.kdyzm.spring.security.oauth.study.resource.server.entity.JwtTokenInfo;
+import com.kdyzm.spring.security.oauth.study.resource.server.utils.RedisUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -32,6 +34,10 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class AccessDecisionManagerImpl implements AccessDecisionManager {
+
+    @Autowired
+    RedisUtils redisUtils;
+
     @SneakyThrows
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> collection) throws AccessDeniedException, InsufficientAuthenticationException {
